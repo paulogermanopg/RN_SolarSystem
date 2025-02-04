@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {View, PanResponder} from 'react-native';
 import {Canvas, Circle, Path, Skia} from '@shopify/react-native-skia';
 import {
@@ -45,14 +45,32 @@ const planets = [
 ];
 
 const SolarSystem = () => {
-  const mercuryRotation = useSharedValue(0);
-  const venusRotation = useSharedValue(0);
-  const earthRotation = useSharedValue(0);
-  const marsRotation = useSharedValue(0);
-  const jupiterRotation = useSharedValue(0);
-  const saturnRotation = useSharedValue(0);
-  const uranusRotation = useSharedValue(0);
-  const neptuneRotation = useSharedValue(0);
+  const [zoom, setZoom] = useState<number>(1);
+
+  const mercuryRotation = useSharedValue<number>(0);
+  const venusRotation = useSharedValue<number>(0);
+  const earthRotation = useSharedValue<number>(0);
+  const marsRotation = useSharedValue<number>(0);
+  const jupiterRotation = useSharedValue<number>(0);
+  const saturnRotation = useSharedValue<number>(0);
+  const uranusRotation = useSharedValue<number>(0);
+  const neptuneRotation = useSharedValue<number>(0);
+
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetResponder: () => true,
+        onMoveShouldSetPanResponderCapture: () => true,
+        onPanResponderMove: (event, gestureState) => {
+          if (gestureState.dy < 0) {
+            setZoom(prevZoom => Math.min(prevZoom + 0.02, 2));
+          } else {
+            setZoom(prevZoom => Math.max(prevZoom - 0.02, 0.5));
+          }
+        },
+      }),
+    []
+  );
 
   const rotations = useMemo(
     () => [
@@ -90,92 +108,100 @@ const SolarSystem = () => {
     });
   }, [rotations]);
 
+  //Mercurio
   const mercuryAngle = useDerivedValue(
     () => (mercuryRotation.value * Math.PI) / 180,
   );
   const mercuryCx = useDerivedValue(
-    () => 200 + planets[0].orbitRadius * Math.cos(mercuryAngle.value),
+    () => 200 + planets[0].orbitRadius * zoom * Math.cos(mercuryAngle.value),
   );
   const mercuryCy = useDerivedValue(
-    () => 400 + planets[0].orbitRadius * Math.sin(mercuryAngle.value),
+    () => 400 + planets[0].orbitRadius * zoom * Math.sin(mercuryAngle.value),
   );
 
+  //Venus
   const venusAngle = useDerivedValue(
     () => (venusRotation.value * Math.PI) / 180,
   );
   const venusCx = useDerivedValue(
-    () => 200 + planets[1].orbitRadius * Math.cos(venusAngle.value),
+    () => 200 + planets[1].orbitRadius * zoom * Math.cos(venusAngle.value),
   );
   const venusCy = useDerivedValue(
-    () => 400 + planets[1].orbitRadius * Math.sin(venusAngle.value),
+    () => 400 + planets[1].orbitRadius * zoom * Math.sin(venusAngle.value),
   );
 
+  //Terra
   const earthAngle = useDerivedValue(
     () => (earthRotation.value * Math.PI) / 180,
   );
   const earthCx = useDerivedValue(
-    () => 200 + planets[2].orbitRadius * Math.cos(earthAngle.value),
+    () => 200 + planets[2].orbitRadius * zoom * Math.cos(earthAngle.value),
   );
   const earthCy = useDerivedValue(
-    () => 400 + planets[2].orbitRadius * Math.sin(earthAngle.value),
+    () => 400 + planets[2].orbitRadius * zoom * Math.sin(earthAngle.value),
   );
 
+  //Marte
   const marsAngle = useDerivedValue(() => (marsRotation.value * Math.PI) / 180);
   const marsCx = useDerivedValue(
-    () => 200 + planets[3].orbitRadius * Math.cos(marsAngle.value),
+    () => 200 + planets[3].orbitRadius * zoom * Math.cos(marsAngle.value),
   );
   const marsCy = useDerivedValue(
-    () => 400 + planets[3].orbitRadius * Math.sin(marsAngle.value),
+    () => 400 + planets[3].orbitRadius * zoom * Math.sin(marsAngle.value),
   );
 
+  //Jupiter
   const jupiterAngle = useDerivedValue(
     () => (jupiterRotation.value * Math.PI) / 180,
   );
   const jupiterCx = useDerivedValue(
-    () => 200 + planets[4].orbitRadius * Math.cos(jupiterAngle.value),
+    () => 200 + planets[4].orbitRadius * zoom * Math.cos(jupiterAngle.value),
   );
   const jupiterCy = useDerivedValue(
-    () => 400 + planets[4].orbitRadius * Math.sin(jupiterAngle.value),
+    () => 400 + planets[4].orbitRadius * zoom * Math.sin(jupiterAngle.value),
   );
 
+  //Saturno
   const saturnAngle = useDerivedValue(
     () => (saturnRotation.value * Math.PI) / 180,
   );
   const saturnCx = useDerivedValue(
-    () => 200 + planets[5].orbitRadius * Math.cos(saturnAngle.value),
+    () => 200 + planets[5].orbitRadius * zoom * Math.cos(saturnAngle.value),
   );
   const saturnCy = useDerivedValue(
-    () => 400 + planets[5].orbitRadius * Math.sin(saturnAngle.value),
+    () => 400 + planets[5].orbitRadius * zoom * Math.sin(saturnAngle.value),
   );
 
+  //Urano
   const uranusAngle = useDerivedValue(
     () => (uranusRotation.value * Math.PI) / 180,
   );
   const uranusCx = useDerivedValue(
-    () => 200 + planets[6].orbitRadius * Math.cos(uranusAngle.value),
+    () => 200 + planets[6].orbitRadius * zoom * Math.cos(uranusAngle.value),
   );
   const uranusCy = useDerivedValue(
-    () => 400 + planets[6].orbitRadius * Math.sin(uranusAngle.value),
+    () => 400 + planets[6].orbitRadius * zoom * Math.sin(uranusAngle.value),
   );
 
+  //Netuno
   const neptuneAngle = useDerivedValue(
     () => (neptuneRotation.value * Math.PI) / 180,
   );
   const neptuneCx = useDerivedValue(
-    () => 200 + planets[7].orbitRadius * Math.cos(neptuneAngle.value),
+    () => 200 + planets[7].orbitRadius * zoom * Math.cos(neptuneAngle.value),
   );
   const neptuneCy = useDerivedValue(
-    () => 400 + planets[7].orbitRadius * Math.sin(neptuneAngle.value),
+    () => 400 + planets[7].orbitRadius * zoom * Math.sin(neptuneAngle.value),
   );
 
   return (
-    <View style={{flex: 1, backgroundColor: 'black'}}>
+    <View style={{ flex: 1, backgroundColor: 'black' }} {...panResponder.panHandlers}>
       <Canvas style={{flex: 1}}>
-        <Circle cx={200} cy={400} r={20} color="yellow" />
+        <Circle cx={200} cy={400} r={20 * zoom} color="yellow" />
 
         {planets.map((planet, index) => {
           const orbitPath = Skia.Path.Make();
-          orbitPath.addCircle(200, 400, planet.orbitRadius);
+          orbitPath.addCircle(200, 400, planet.orbitRadius * zoom);
 
           return (
             <Path
