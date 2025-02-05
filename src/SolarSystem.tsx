@@ -1,13 +1,15 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {View, PanResponder} from 'react-native';
 import {Canvas, Circle, Path, Skia} from '@shopify/react-native-skia';
-import {
+import Animated, {
   useSharedValue,
   withRepeat,
   withTiming,
   useDerivedValue,
+  useAnimatedStyle,
   Easing,
 } from 'react-native-reanimated';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const planets = [
   {name: 'Mercury', color: '#B0B0B0', radius: 5, orbitRadius: 40, speed: 1920},
@@ -46,6 +48,7 @@ const planets = [
 
 const SolarSystem = () => {
   const [zoom, setZoom] = useState<number>(1);
+  const handPositionY = useSharedValue<number>(25);
 
   const mercuryRotation = useSharedValue<number>(0);
   const venusRotation = useSharedValue<number>(0);
@@ -69,7 +72,7 @@ const SolarSystem = () => {
           }
         },
       }),
-    []
+    [],
   );
 
   const rotations = useMemo(
@@ -107,6 +110,18 @@ const SolarSystem = () => {
       );
     });
   }, [rotations]);
+
+  useEffect(() => {
+    handPositionY.value = withRepeat(
+      withTiming(50, {duration: 1500, easing: Easing.inOut(Easing.sin)}),
+      -1,
+      true,
+    );
+  }, []);
+
+  const handStyle = useAnimatedStyle(() => ({
+    bottom: handPositionY.value,
+  }));
 
   //Mercurio
   const mercuryAngle = useDerivedValue(
@@ -195,7 +210,9 @@ const SolarSystem = () => {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'black' }} {...panResponder.panHandlers}>
+    <View
+      style={{flex: 1, backgroundColor: 'black'}}
+      {...panResponder.panHandlers}>
       <Canvas style={{flex: 1}}>
         <Circle cx={200} cy={400} r={20 * zoom} color="yellow" />
 
@@ -271,6 +288,20 @@ const SolarSystem = () => {
           color={planets[7].color}
         />
       </Canvas>
+
+
+      <View style={{position: 'relative', left: 20}}>
+        <Animated.View style={handStyle}>
+          <Ionicons name="swap-vertical" size={50} color="white" />
+        </Animated.View>
+      </View>
+
+      <View style={{position: 'absolute', bottom: 100, left: 35}}>
+        <Ionicons name="add" size={30} color="white" />
+      </View>
+      <View style={{position: 'absolute', bottom: 0, left: 35}}>
+        <Ionicons name="remove" size={30} color="white" />
+      </View>
     </View>
   );
 };
