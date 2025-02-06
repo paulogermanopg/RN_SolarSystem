@@ -1,11 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {
-  View,
-  PanResponder,
-  Text,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-} from 'react-native';
+import {View, PanResponder, Text, TouchableOpacity} from 'react-native';
 import {Canvas, Circle, Path, Skia} from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
@@ -31,7 +25,7 @@ const planets = [
     name: 'Venus',
     color: '#F5A623',
     radius: 8,
-    orbitRadius: 70,
+    orbitRadius: 80,
     speed: 4960,
   },
   {
@@ -39,7 +33,7 @@ const planets = [
     name: 'Earth',
     color: '#2A76D2',
     radius: 10,
-    orbitRadius: 100,
+    orbitRadius: 120,
     speed: 8000,
   },
   {
@@ -47,7 +41,7 @@ const planets = [
     name: 'Mars',
     color: '#D14A3B',
     radius: 7,
-    orbitRadius: 130,
+    orbitRadius: 160,
     speed: 15040,
   },
   {
@@ -55,7 +49,7 @@ const planets = [
     name: 'Jupiter',
     color: '#E0C084',
     radius: 15,
-    orbitRadius: 170,
+    orbitRadius: 200,
     speed: 94880,
   },
   {
@@ -63,7 +57,7 @@ const planets = [
     name: 'Saturn',
     color: '#D3B376',
     radius: 12,
-    orbitRadius: 210,
+    orbitRadius: 240,
     speed: 235680,
   },
   {
@@ -71,7 +65,7 @@ const planets = [
     name: 'Uranus',
     color: '#8BCFE7',
     radius: 10,
-    orbitRadius: 250,
+    orbitRadius: 280,
     speed: 672080,
   },
   {
@@ -79,7 +73,7 @@ const planets = [
     name: 'Neptune',
     color: '#4A80B5',
     radius: 10,
-    orbitRadius: 290,
+    orbitRadius: 320,
     speed: 1318400,
   },
 ];
@@ -88,7 +82,6 @@ const SolarSystem = () => {
   const [zoom, setZoom] = useState<number>(1);
   const [selectedPlanetIndex, setSelectedPlanetIndex] = useState<number>(0);
   const handPositionY = useSharedValue<number>(25);
-  const selectedGlow = useSharedValue<number>(1);
 
   const mercuryRotation = useSharedValue<number>(0);
   const venusRotation = useSharedValue<number>(0);
@@ -143,14 +136,6 @@ const SolarSystem = () => {
   };
 
   useEffect(() => {
-    selectedGlow.value = withRepeat(
-      withTiming(1.5, {duration: 500, easing: Easing.linear}),
-      -1,
-      true,
-    );
-  }, []);
-
-  useEffect(() => {
     rotations.forEach((rotation, index) => {
       rotation.value = withRepeat(
         withTiming(360, {
@@ -170,14 +155,6 @@ const SolarSystem = () => {
       true,
     );
   }, []);
-
-  // const getAnimatedStyle = (planetId: number) => {
-  //   return useAnimatedStyle(() => {
-  //     return {
-  //       opacity: selectedPlanetIndex === planetId ? selectedGlow.value : 1,
-  //     };
-  //   });
-  // };
 
   const handStyle = useAnimatedStyle(() => ({
     bottom: handPositionY.value,
@@ -313,14 +290,24 @@ const SolarSystem = () => {
             );
           })}
 
-          {planets.map(planet => (
-            <Circle
-              key={planet.id}
-              cx={planetsCyCx[planet.id].cx}
-              cy={planetsCyCx[planet.id].cy}
-              r={planet.radius}
-              color={planet.color}
-            />
+          {planets.map((planet, index) => (
+            <View key={planet.id}>
+              {index === selectedPlanetIndex && (
+                <Circle
+                  cx={planetsCyCx[index].cx}
+                  cy={planetsCyCx[index].cy}
+                  r={planet.radius + 5}
+                  color="white"
+                />
+              )}
+              <Circle
+                key={planet.id}
+                cx={planetsCyCx[index].cx}
+                cy={planetsCyCx[index].cy}
+                r={planet.radius}
+                color={planet.color}
+              />
+            </View>
           ))}
         </Canvas>
       </View>
