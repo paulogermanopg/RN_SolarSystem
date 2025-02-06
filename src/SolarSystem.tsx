@@ -1,5 +1,11 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {View, PanResponder} from 'react-native';
+import {
+  View,
+  PanResponder,
+  Text,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+} from 'react-native';
 import {Canvas, Circle, Path, Skia} from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
@@ -12,11 +18,40 @@ import Animated, {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const planets = [
-  {name: 'Mercury', color: '#B0B0B0', radius: 5, orbitRadius: 40, speed: 1920},
-  {name: 'Venus', color: '#F5A623', radius: 8, orbitRadius: 70, speed: 4960},
-  {name: 'Earth', color: '#2A76D2', radius: 10, orbitRadius: 100, speed: 8000},
-  {name: 'Mars', color: '#D14A3B', radius: 7, orbitRadius: 130, speed: 15040},
   {
+    id: 0,
+    name: 'Mercury',
+    color: '#B0B0B0',
+    radius: 5,
+    orbitRadius: 40,
+    speed: 1920,
+  },
+  {
+    id: 1,
+    name: 'Venus',
+    color: '#F5A623',
+    radius: 8,
+    orbitRadius: 70,
+    speed: 4960,
+  },
+  {
+    id: 2,
+    name: 'Earth',
+    color: '#2A76D2',
+    radius: 10,
+    orbitRadius: 100,
+    speed: 8000,
+  },
+  {
+    id: 3,
+    name: 'Mars',
+    color: '#D14A3B',
+    radius: 7,
+    orbitRadius: 130,
+    speed: 15040,
+  },
+  {
+    id: 4,
     name: 'Jupiter',
     color: '#E0C084',
     radius: 15,
@@ -24,6 +59,7 @@ const planets = [
     speed: 94880,
   },
   {
+    id: 5,
     name: 'Saturn',
     color: '#D3B376',
     radius: 12,
@@ -31,6 +67,7 @@ const planets = [
     speed: 235680,
   },
   {
+    id: 6,
     name: 'Uranus',
     color: '#8BCFE7',
     radius: 10,
@@ -38,6 +75,7 @@ const planets = [
     speed: 672080,
   },
   {
+    id: 7,
     name: 'Neptune',
     color: '#4A80B5',
     radius: 10,
@@ -48,7 +86,9 @@ const planets = [
 
 const SolarSystem = () => {
   const [zoom, setZoom] = useState<number>(1);
+  const [selectedPlanetIndex, setSelectedPlanetIndex] = useState<number>(0);
   const handPositionY = useSharedValue<number>(25);
+  const selectedGlow = useSharedValue<number>(1);
 
   const mercuryRotation = useSharedValue<number>(0);
   const venusRotation = useSharedValue<number>(0);
@@ -98,6 +138,18 @@ const SolarSystem = () => {
     ],
   );
 
+  const selectNextPlanet = () => {
+    setSelectedPlanetIndex(prevIndex => (prevIndex + 1) % planets.length);
+  };
+
+  useEffect(() => {
+    selectedGlow.value = withRepeat(
+      withTiming(1.5, {duration: 500, easing: Easing.linear}),
+      -1,
+      true,
+    );
+  }, []);
+
   useEffect(() => {
     rotations.forEach((rotation, index) => {
       rotation.value = withRepeat(
@@ -118,6 +170,14 @@ const SolarSystem = () => {
       true,
     );
   }, []);
+
+  // const getAnimatedStyle = (planetId: number) => {
+  //   return useAnimatedStyle(() => {
+  //     return {
+  //       opacity: selectedPlanetIndex === planetId ? selectedGlow.value : 1,
+  //     };
+  //   });
+  // };
 
   const handStyle = useAnimatedStyle(() => ({
     bottom: handPositionY.value,
@@ -209,98 +269,81 @@ const SolarSystem = () => {
     () => 400 + planets[7].orbitRadius * zoom * Math.sin(neptuneAngle.value),
   );
 
+  const planetsCyCx = [
+    {cx: mercuryCx, cy: mercuryCy},
+    {cx: venusCx, cy: venusCy},
+    {cx: earthCx, cy: earthCy},
+    {cx: marsCx, cy: marsCy},
+    {cx: jupiterCx, cy: jupiterCy},
+    {cx: saturnCx, cy: saturnCy},
+    {cx: uranusCx, cy: uranusCy},
+    {cx: neptuneCx, cy: neptuneCy},
+  ];
+
   return (
-    <View
-      style={{flex: 1, backgroundColor: 'black'}}
-      {...panResponder.panHandlers}>
-      <Canvas style={{flex: 1}}>
-        <Circle cx={200} cy={400} r={20 * zoom} color="yellow" />
+    <View style={{flex: 1, backgroundColor: 'black'}}>
+      <Text
+        style={{
+          color: 'white',
+          fontSize: 24,
+          marginTop: 20,
+          textAlign: 'center',
+        }}>
+        {planets[selectedPlanetIndex].name}
+      </Text>
 
-        {planets.map((planet, index) => {
-          const orbitPath = Skia.Path.Make();
-          orbitPath.addCircle(200, 400, planet.orbitRadius * zoom);
+      <View
+        style={{flex: 1, backgroundColor: 'black'}}
+        {...panResponder.panHandlers}>
+        <Canvas style={{flex: 1}}>
+          <Circle cx={200} cy={400} r={20 * zoom} color="yellow" />
 
-          return (
-            <Path
-              key={`orbit-${planet.name}`}
-              path={orbitPath}
-              color="rgba(255, 255, 255, 0.3)"
-              style="stroke"
-              strokeWidth={1}
+          {planets.map((planet, index) => {
+            const orbitPath = Skia.Path.Make();
+            orbitPath.addCircle(200, 400, planet.orbitRadius * zoom);
+
+            return (
+              <Path
+                key={`orbit-${planet.name}`}
+                path={orbitPath}
+                color="rgba(255, 255, 255, 0.3)"
+                style="stroke"
+                strokeWidth={1}
+              />
+            );
+          })}
+
+          {planets.map(planet => (
+            <Circle
+              key={planet.id}
+              cx={planetsCyCx[planet.id].cx}
+              cy={planetsCyCx[planet.id].cy}
+              r={planet.radius}
+              color={planet.color}
             />
-          );
-        })}
-
-        <Circle
-          key="Mercury"
-          cx={mercuryCx}
-          cy={mercuryCy}
-          r={planets[0].radius}
-          color={planets[0].color}
-        />
-        <Circle
-          key="Venus"
-          cx={venusCx}
-          cy={venusCy}
-          r={planets[1].radius}
-          color={planets[1].color}
-        />
-        <Circle
-          key="Earth"
-          cx={earthCx}
-          cy={earthCy}
-          r={planets[2].radius}
-          color={planets[2].color}
-        />
-        <Circle
-          key="Mars"
-          cx={marsCx}
-          cy={marsCy}
-          r={planets[3].radius}
-          color={planets[3].color}
-        />
-        <Circle
-          key="Jupiter"
-          cx={jupiterCx}
-          cy={jupiterCy}
-          r={planets[4].radius}
-          color={planets[4].color}
-        />
-        <Circle
-          key="Saturn"
-          cx={saturnCx}
-          cy={saturnCy}
-          r={planets[5].radius}
-          color={planets[5].color}
-        />
-        <Circle
-          key="Uranus"
-          cx={uranusCx}
-          cy={uranusCy}
-          r={planets[6].radius}
-          color={planets[6].color}
-        />
-        <Circle
-          key="Neptune"
-          cx={neptuneCx}
-          cy={neptuneCy}
-          r={planets[7].radius}
-          color={planets[7].color}
-        />
-      </Canvas>
-
-
-      <View style={{position: 'relative', left: 20}}>
-        <Animated.View style={handStyle}>
-          <Ionicons name="swap-vertical" size={50} color="white" />
-        </Animated.View>
+          ))}
+        </Canvas>
       </View>
 
-      <View style={{position: 'absolute', bottom: 100, left: 35}}>
-        <Ionicons name="add" size={30} color="white" />
-      </View>
-      <View style={{position: 'absolute', bottom: 0, left: 35}}>
-        <Ionicons name="remove" size={30} color="white" />
+      <View>
+        <View style={{position: 'relative', left: 20}}>
+          <Animated.View style={handStyle}>
+            <Ionicons name="swap-vertical" size={50} color="white" />
+          </Animated.View>
+        </View>
+
+        <View style={{position: 'absolute', bottom: 100, left: 35}}>
+          <Ionicons name="add" size={30} color="white" />
+        </View>
+        <View style={{position: 'absolute', bottom: 0, left: 35}}>
+          <Ionicons name="remove" size={30} color="white" />
+        </View>
+
+        <TouchableOpacity
+          style={{position: 'absolute', bottom: 20, right: 20}}
+          onPress={selectNextPlanet}>
+          <Ionicons name="rocket" size={50} color="white" />
+        </TouchableOpacity>
       </View>
     </View>
   );
