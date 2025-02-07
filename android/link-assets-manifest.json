@@ -1,0 +1,13 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/fonts/Goldman-Bold.ttf",
+      "sha1": "6c5788bf5439e8e641f13419f6ce0b698adb9f43"
+    },
+    {
+      "path": "src/fonts/Goldman-Regular.ttf",
+      "sha1": "e41f41bd7fdb360336ff2b419af5d2999fe022c5"
+    }
+  ]
+}

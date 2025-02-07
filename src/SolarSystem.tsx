@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {View, PanResponder, Text, TouchableOpacity} from 'react-native';
+import {View, PanResponder, StyleSheet, Dimensions} from 'react-native';
 import {Canvas, Circle, Path, Skia} from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
@@ -10,75 +10,14 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-const planets = [
-  {
-    id: 0,
-    name: 'Mercury',
-    color: '#B0B0B0',
-    radius: 5,
-    orbitRadius: 40,
-    speed: 1920,
-  },
-  {
-    id: 1,
-    name: 'Venus',
-    color: '#F5A623',
-    radius: 8,
-    orbitRadius: 80,
-    speed: 4960,
-  },
-  {
-    id: 2,
-    name: 'Earth',
-    color: '#2A76D2',
-    radius: 10,
-    orbitRadius: 120,
-    speed: 8000,
-  },
-  {
-    id: 3,
-    name: 'Mars',
-    color: '#D14A3B',
-    radius: 7,
-    orbitRadius: 160,
-    speed: 15040,
-  },
-  {
-    id: 4,
-    name: 'Jupiter',
-    color: '#E0C084',
-    radius: 15,
-    orbitRadius: 200,
-    speed: 94880,
-  },
-  {
-    id: 5,
-    name: 'Saturn',
-    color: '#D3B376',
-    radius: 12,
-    orbitRadius: 240,
-    speed: 235680,
-  },
-  {
-    id: 6,
-    name: 'Uranus',
-    color: '#8BCFE7',
-    radius: 10,
-    orbitRadius: 280,
-    speed: 672080,
-  },
-  {
-    id: 7,
-    name: 'Neptune',
-    color: '#4A80B5',
-    radius: 10,
-    orbitRadius: 320,
-    speed: 1318400,
-  },
-];
+import {planets} from './data/planets';
+import * as S from './styles';
 
 const SolarSystem = () => {
+  const {width, height} = Dimensions.get('window');
+  const centerX = width / 2;
+  const centerY = height / 2 - 50;
+
   const [zoom, setZoom] = useState<number>(1);
   const [selectedPlanetIndex, setSelectedPlanetIndex] = useState<number>(0);
   const handPositionY = useSharedValue<number>(25);
@@ -95,7 +34,7 @@ const SolarSystem = () => {
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onMoveShouldSetResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
         onMoveShouldSetPanResponderCapture: () => true,
         onPanResponderMove: (event, gestureState) => {
           if (gestureState.dy < 0) {
@@ -135,6 +74,113 @@ const SolarSystem = () => {
     setSelectedPlanetIndex(prevIndex => (prevIndex + 1) % planets.length);
   };
 
+  const handStyle = useAnimatedStyle(() => ({
+    bottom: handPositionY.value,
+  }));
+
+  //Mercurio
+  const mercuryAngle = useDerivedValue(
+    () => (mercuryRotation.value * Math.PI) / 180,
+  );
+  const mercuryCx = useDerivedValue(
+    () =>
+      centerX + planets[0].orbitRadius * zoom * Math.cos(mercuryAngle.value),
+  );
+  const mercuryCy = useDerivedValue(
+    () =>
+      centerY + planets[0].orbitRadius * zoom * Math.sin(mercuryAngle.value),
+  );
+
+  //Venus
+  const venusAngle = useDerivedValue(
+    () => (venusRotation.value * Math.PI) / 180,
+  );
+  const venusCx = useDerivedValue(
+    () => centerX + planets[1].orbitRadius * zoom * Math.cos(venusAngle.value),
+  );
+  const venusCy = useDerivedValue(
+    () => centerY + planets[1].orbitRadius * zoom * Math.sin(venusAngle.value),
+  );
+
+  //Terra
+  const earthAngle = useDerivedValue(
+    () => (earthRotation.value * Math.PI) / 180,
+  );
+  const earthCx = useDerivedValue(
+    () => centerX + planets[2].orbitRadius * zoom * Math.cos(earthAngle.value),
+  );
+  const earthCy = useDerivedValue(
+    () => centerY + planets[2].orbitRadius * zoom * Math.sin(earthAngle.value),
+  );
+
+  //Marte
+  const marsAngle = useDerivedValue(() => (marsRotation.value * Math.PI) / 180);
+  const marsCx = useDerivedValue(
+    () => centerX + planets[3].orbitRadius * zoom * Math.cos(marsAngle.value),
+  );
+  const marsCy = useDerivedValue(
+    () => centerY + planets[3].orbitRadius * zoom * Math.sin(marsAngle.value),
+  );
+
+  //Jupiter
+  const jupiterAngle = useDerivedValue(
+    () => (jupiterRotation.value * Math.PI) / 180,
+  );
+  const jupiterCx = useDerivedValue(
+    () =>
+      centerX + planets[4].orbitRadius * zoom * Math.cos(jupiterAngle.value),
+  );
+  const jupiterCy = useDerivedValue(
+    () =>
+      centerY + planets[4].orbitRadius * zoom * Math.sin(jupiterAngle.value),
+  );
+
+  //Saturno
+  const saturnAngle = useDerivedValue(
+    () => (saturnRotation.value * Math.PI) / 180,
+  );
+  const saturnCx = useDerivedValue(
+    () => centerX + planets[5].orbitRadius * zoom * Math.cos(saturnAngle.value),
+  );
+  const saturnCy = useDerivedValue(
+    () => centerY + planets[5].orbitRadius * zoom * Math.sin(saturnAngle.value),
+  );
+
+  //Urano
+  const uranusAngle = useDerivedValue(
+    () => (uranusRotation.value * Math.PI) / 180,
+  );
+  const uranusCx = useDerivedValue(
+    () => centerX + planets[6].orbitRadius * zoom * Math.cos(uranusAngle.value),
+  );
+  const uranusCy = useDerivedValue(
+    () => centerY + planets[6].orbitRadius * zoom * Math.sin(uranusAngle.value),
+  );
+
+  //Netuno
+  const neptuneAngle = useDerivedValue(
+    () => (neptuneRotation.value * Math.PI) / 180,
+  );
+  const neptuneCx = useDerivedValue(
+    () =>
+      centerX + planets[7].orbitRadius * zoom * Math.cos(neptuneAngle.value),
+  );
+  const neptuneCy = useDerivedValue(
+    () =>
+      centerY + planets[7].orbitRadius * zoom * Math.sin(neptuneAngle.value),
+  );
+
+  const planetsCyCx = [
+    {cx: mercuryCx, cy: mercuryCy},
+    {cx: venusCx, cy: venusCy},
+    {cx: earthCx, cy: earthCy},
+    {cx: marsCx, cy: marsCy},
+    {cx: jupiterCx, cy: jupiterCy},
+    {cx: saturnCx, cy: saturnCy},
+    {cx: uranusCx, cy: uranusCy},
+    {cx: neptuneCx, cy: neptuneCy},
+  ];
+
   useEffect(() => {
     rotations.forEach((rotation, index) => {
       rotation.value = withRepeat(
@@ -154,130 +200,19 @@ const SolarSystem = () => {
       -1,
       true,
     );
-  }, []);
-
-  const handStyle = useAnimatedStyle(() => ({
-    bottom: handPositionY.value,
-  }));
-
-  //Mercurio
-  const mercuryAngle = useDerivedValue(
-    () => (mercuryRotation.value * Math.PI) / 180,
-  );
-  const mercuryCx = useDerivedValue(
-    () => 200 + planets[0].orbitRadius * zoom * Math.cos(mercuryAngle.value),
-  );
-  const mercuryCy = useDerivedValue(
-    () => 400 + planets[0].orbitRadius * zoom * Math.sin(mercuryAngle.value),
-  );
-
-  //Venus
-  const venusAngle = useDerivedValue(
-    () => (venusRotation.value * Math.PI) / 180,
-  );
-  const venusCx = useDerivedValue(
-    () => 200 + planets[1].orbitRadius * zoom * Math.cos(venusAngle.value),
-  );
-  const venusCy = useDerivedValue(
-    () => 400 + planets[1].orbitRadius * zoom * Math.sin(venusAngle.value),
-  );
-
-  //Terra
-  const earthAngle = useDerivedValue(
-    () => (earthRotation.value * Math.PI) / 180,
-  );
-  const earthCx = useDerivedValue(
-    () => 200 + planets[2].orbitRadius * zoom * Math.cos(earthAngle.value),
-  );
-  const earthCy = useDerivedValue(
-    () => 400 + planets[2].orbitRadius * zoom * Math.sin(earthAngle.value),
-  );
-
-  //Marte
-  const marsAngle = useDerivedValue(() => (marsRotation.value * Math.PI) / 180);
-  const marsCx = useDerivedValue(
-    () => 200 + planets[3].orbitRadius * zoom * Math.cos(marsAngle.value),
-  );
-  const marsCy = useDerivedValue(
-    () => 400 + planets[3].orbitRadius * zoom * Math.sin(marsAngle.value),
-  );
-
-  //Jupiter
-  const jupiterAngle = useDerivedValue(
-    () => (jupiterRotation.value * Math.PI) / 180,
-  );
-  const jupiterCx = useDerivedValue(
-    () => 200 + planets[4].orbitRadius * zoom * Math.cos(jupiterAngle.value),
-  );
-  const jupiterCy = useDerivedValue(
-    () => 400 + planets[4].orbitRadius * zoom * Math.sin(jupiterAngle.value),
-  );
-
-  //Saturno
-  const saturnAngle = useDerivedValue(
-    () => (saturnRotation.value * Math.PI) / 180,
-  );
-  const saturnCx = useDerivedValue(
-    () => 200 + planets[5].orbitRadius * zoom * Math.cos(saturnAngle.value),
-  );
-  const saturnCy = useDerivedValue(
-    () => 400 + planets[5].orbitRadius * zoom * Math.sin(saturnAngle.value),
-  );
-
-  //Urano
-  const uranusAngle = useDerivedValue(
-    () => (uranusRotation.value * Math.PI) / 180,
-  );
-  const uranusCx = useDerivedValue(
-    () => 200 + planets[6].orbitRadius * zoom * Math.cos(uranusAngle.value),
-  );
-  const uranusCy = useDerivedValue(
-    () => 400 + planets[6].orbitRadius * zoom * Math.sin(uranusAngle.value),
-  );
-
-  //Netuno
-  const neptuneAngle = useDerivedValue(
-    () => (neptuneRotation.value * Math.PI) / 180,
-  );
-  const neptuneCx = useDerivedValue(
-    () => 200 + planets[7].orbitRadius * zoom * Math.cos(neptuneAngle.value),
-  );
-  const neptuneCy = useDerivedValue(
-    () => 400 + planets[7].orbitRadius * zoom * Math.sin(neptuneAngle.value),
-  );
-
-  const planetsCyCx = [
-    {cx: mercuryCx, cy: mercuryCy},
-    {cx: venusCx, cy: venusCy},
-    {cx: earthCx, cy: earthCy},
-    {cx: marsCx, cy: marsCy},
-    {cx: jupiterCx, cy: jupiterCy},
-    {cx: saturnCx, cy: saturnCy},
-    {cx: uranusCx, cy: uranusCy},
-    {cx: neptuneCx, cy: neptuneCy},
-  ];
+  }, [handPositionY]);
 
   return (
-    <View style={{flex: 1, backgroundColor: 'black'}}>
-      <Text
-        style={{
-          color: 'white',
-          fontSize: 24,
-          marginTop: 20,
-          textAlign: 'center',
-        }}>
-        {planets[selectedPlanetIndex].name}
-      </Text>
+    <S.Universe>
+      <S.PlanetsName>{planets[selectedPlanetIndex].name}</S.PlanetsName>
 
-      <View
-        style={{flex: 1, backgroundColor: 'black'}}
-        {...panResponder.panHandlers}>
-        <Canvas style={{flex: 1}}>
-          <Circle cx={200} cy={400} r={20 * zoom} color="yellow" />
+      <S.Space {...panResponder.panHandlers}>
+        <Canvas style={styles.canva}>
+          <Circle cx={centerX} cy={centerY} r={20 * zoom} color="yellow" />
 
-          {planets.map((planet, index) => {
+          {planets.map((planet, _) => {
             const orbitPath = Skia.Path.Make();
-            orbitPath.addCircle(200, 400, planet.orbitRadius * zoom);
+            orbitPath.addCircle(centerX, centerY, planet.orbitRadius * zoom);
 
             return (
               <Path
@@ -310,30 +245,35 @@ const SolarSystem = () => {
             </View>
           ))}
         </Canvas>
-      </View>
+      </S.Space>
 
       <View>
-        <View style={{position: 'relative', left: 20}}>
+        <S.HandShake>
           <Animated.View style={handStyle}>
             <Ionicons name="swap-vertical" size={50} color="white" />
           </Animated.View>
-        </View>
+        </S.HandShake>
 
-        <View style={{position: 'absolute', bottom: 100, left: 35}}>
+        <S.ArrowUp>
           <Ionicons name="add" size={30} color="white" />
-        </View>
-        <View style={{position: 'absolute', bottom: 0, left: 35}}>
-          <Ionicons name="remove" size={30} color="white" />
-        </View>
+        </S.ArrowUp>
 
-        <TouchableOpacity
-          style={{position: 'absolute', bottom: 20, right: 20}}
-          onPress={selectNextPlanet}>
+        <S.ArrowDown>
+          <Ionicons name="remove" size={30} color="white" />
+        </S.ArrowDown>
+
+        <S.RocketShipButton onPress={selectNextPlanet}>
           <Ionicons name="rocket" size={50} color="white" />
-        </TouchableOpacity>
+        </S.RocketShipButton>
       </View>
-    </View>
+    </S.Universe>
   );
 };
+
+const styles = StyleSheet.create({
+  canva: {
+    flex: 1,
+  },
+});
 
 export default SolarSystem;
